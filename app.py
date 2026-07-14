@@ -14,7 +14,7 @@ def charger_modele_logistic():
     colonnes = joblib.load('models/colonnes_entrainement.pkl')
     return modele, colonnes
 def charger_modele_tree():
-    modele = joblib.load('modele/decisiontree.pkl')
+    modele = joblib.load('models/decisiontree.pkl')
     return modele
 
 def reinit():
@@ -309,7 +309,7 @@ def Treeloc():
 
         with st.container(border=True):
             tree_model = charger_modele_tree()
-            colonnes = joblib.load('colonnes_entrainement.pkl')
+            colonnes = joblib.load('models/colonnes_entrainement.pkl')
             interactive_prediction(tree_model, colonnes)
 
         if st.button("⬅️ Back to Menu"):
@@ -407,8 +407,8 @@ def rfiloc():
         st.session_state.rfiloc ="Base"
     if st.session_state.rfiloc =="Base":
         st.info("This tool aims to provide a local interpretation by quantifying the impact of each features associated to an observation.")
-        modele = joblib.load('modele_rf.pkl')
-        colonnes = joblib.load('colonnes_rf.pkl')
+        modele = joblib.load('models/modele_rf.pkl')
+        colonnes = joblib.load('models/colonnes_rf.pkl')
         with st.expander("Player Information", expanded=True):
             heigth = st.slider("Height in cm:", 150, 210, 177)
             weight = st.slider("Weight in kg:", 40, 110, 73)
@@ -670,7 +670,7 @@ def RandomF():
         st.write("THe following section displayed the ICE and PD plot of the variables that seemed relevant on the above PFI plot.")
         with st.expander("Click here to view detailed ICE and PD", expanded=True):
             chosen = st.selectbox("Choose a feature to analyze :", ['Stress_Level_Score', 'Sleep_Hours_Per_Night', 'Reaction_Time_ms', 'Balance_Test_Score', 'Knee_Strength_Score', 'Sprint_Speed_10m_s', 'Hamstring_Flexibility', 'Nutrition_Quality_Score', 'Agility_Score', 'Previous_Injury_Count', 'Height_cm', 'Weight_kg', 'BMI', 'Warmup_Routine_Adherence'])
-            chemin_image = f"ICE\ICE_{chosen}.png"
+            chemin_image = f"ICE/ICE_{chosen}.png"
             st.image(chemin_image, caption=f"ICE & PDP plot for {chosen}")
         st.divider()
         st.subheader("Individual Interpretation")
