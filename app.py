@@ -10,11 +10,11 @@ import streamlit.components.v1 as components
 
 @st.cache_resource # Demande à Streamlit de ne charger ces fichiers qu'une seule fois
 def charger_modele_logistic():
-    modele = joblib.load('pipeline_logistique.pkl')
-    colonnes = joblib.load('colonnes_entrainement.pkl')
+    modele = joblib.load('models/pipeline_logistique.pkl')
+    colonnes = joblib.load('models/colonnes_entrainement.pkl')
     return modele, colonnes
 def charger_modele_tree():
-    modele = joblib.load('decisiontree.pkl')
+    modele = joblib.load('modele/decisiontree.pkl')
     return modele
 
 def reinit():
@@ -25,63 +25,35 @@ def reinit():
 
 
 def afficher_pfi():
-    
-    # 1. Chargement des résultats pré-calculés (Vérifie bien le nom : 'pfi.pkl' ou 'pfi_results.pkl' selon ton code)
-    df_pfi = joblib.load('pfi_results.pkl')
-    
-    # 2. Filtrage : On ne garde que les variables qui ont VRAIMENT un impact (Importance > 0)
+    df_pfi = joblib.load('models/pfi_results.pkl')
     df_pfi = df_pfi[df_pfi['Importance'] > 0]
-    
-    # 3. Tri inversé pour l'affichage de matplotlib (du bas vers le haut)
     df_pfi = df_pfi.sort_values(by='Importance', ascending=True).reset_index(drop=True)
-    
-    # 4. Création du graphique
     fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
-    
     bars = ax.barh(df_pfi['Feature'], df_pfi['Importance'], color='#1abc9c', height=0.6)
-    
-    # 5. Ajout des étiquettes en pourcentage au bout de chaque barre
     for bar in bars:
         valeur_brute = bar.get_width()
         pourcentage = valeur_brute * 100 # On transforme 0.045 en 4.5%
-        
         ax.text(valeur_brute + 0.001, bar.get_y() + bar.get_height()/2, 
                 f'-{pourcentage:.2f}%', 
                 va='center', ha='left', fontsize=10, fontweight='bold', color='black')
-                
-    # 6. Esthétique du graphique
     ax.set_xlabel('Accuracy Loss (%)', fontsize=12, fontweight='bold')
     ax.set_title("Permutation Feature Importance", fontsize=14, fontweight='bold')
-    
-    # Nettoyage des bordures (on enlève le haut et la droite pour faire plus "pro")
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    
-    # On affiche le graphique dans Streamlit
     st.pyplot(fig)
 
 def display_risk_thermometer(risk_level):
-    """
-    Affiche une barre de progression visuelle pour le niveau de risque (1 à 5).
-    """
     st.write("### Risk Level Assessment")
-    
-    # Couleurs : Vert -> Jaune -> Orange -> Rouge -> Rouge Foncé
     colors = ["#2ecc71", "#f1c40f", "#f39c12", "#e67e22", "#c0392b"]
     labels = ["1/5", "2/5", "3/5", "4/5", "5/5"]
     descriptions = ["Very Low", "Low", "Moderate", "High", "Critical"]
-    
-    # Création de 5 colonnes pour simuler une jauge
     cols = st.columns(5)
     
     for i in range(5):
         # On vérifie si c'est le niveau actuel
         is_active = (risk_level == i + 1)
-        
-        # Style pour la colonne
         with cols[i]:
             if is_active:
-                # Si c'est le niveau actif, on met un fond coloré et du texte gras
                 st.markdown(
                     f"""
                     <div style="background-color: {colors[i]}; padding: 10px; border-radius: 5px; text-align: center; color: white;">
@@ -90,7 +62,6 @@ def display_risk_thermometer(risk_level):
                     """, unsafe_allow_html=True
                 )
             else:
-                # Sinon, c'est grisé/atténué
                 st.markdown(
                     f"""
                     <div style="background-color: #f0f2f6; padding: 10px; border-radius: 5px; text-align: center; color: #bdc3c7;">
@@ -100,49 +71,28 @@ def display_risk_thermometer(risk_level):
                 )
 
 def afficher_grille_risque():
-    
-    # Définition de ta grille
     data = {
         "Level": ["1/5", "2/5", "3/5", "4/5", "5/5"],
         "Probability Range": ["0 - 10%", "10 - 40%", "40 - 60%", "60 - 90%", "90 - 100%"],
         "Status": ["Very Low", "Low", "Moderate", "High", "Critical"]
     }
-    
-    # Création et affichage
     df_grid = pd.DataFrame(data)
     st.table(df_grid)
 
 def tracer_graphique_contributions(noms_variables, contributions):
-    """
-    Génère le graphique en barres horizontales (façon Waterfall/Tornado)
-    """
-    # 1. Créer un DataFrame pour faciliter le tri
     df_plot = pd.DataFrame({
         'Feature': noms_variables,
         'Contribution': contributions
     })
-    
-    # On trie du plus petit (négatif, vert) au plus grand (positif, rouge)
     df_plot = df_plot.sort_values(by='Contribution', ascending=True).reset_index(drop=True)
-    
-    # 2. Configuration de la figure
     fig, ax = plt.subplots(figsize=(10, 6), constrained_layout=True)
-    
-    # 2. Rendre les barres plus fines (height=0.6 au lieu de 0.8 par défaut)
-    
-    
-    # Couleurs : Vert si < 0 (protecteur), Rouge si > 0 (risque)
     couleurs = ['#80ff80' if val < 0 else '#ff8080' for val in df_plot['Contribution']]
     bordures = ['green' if val < 0 else 'red' for val in df_plot['Contribution']]
-    
-    # Tracer les barres
+
     bars = ax.barh(df_plot['Feature'], df_plot['Contribution'], 
                    color=couleurs, edgecolor=bordures, height=0.6)
-    
-    # Ligne verticale pointillée à 0
+
     ax.axvline(x=0, color='black', linestyle='--', linewidth=1.2)
-    
-    # 3. Ajouter les valeurs numériques au bout des barres
         
     for i, bar in enumerate(bars):
         valeur = df_plot['Contribution'][i]
@@ -151,22 +101,17 @@ def tracer_graphique_contributions(noms_variables, contributions):
         ax.text(valeur + x_offset, bar.get_y() + bar.get_height()/2, 
                 f'{valeur:.2f}', 
                 va='center', ha=ha_alignment, fontsize=9, fontweight='bold')
-
-    # 4. Esthétique (grille, titres)
+        
     ax.grid(axis='x', linestyle='--', alpha=0.7)
     ax.set_xlabel('Contribution to Injury Risk (Log-Odds)', fontsize=12)
     ax.set_title("Individual Risk Profile\n(What drives this player's risk?)", fontsize=14, fontweight='bold')
-    
-    # On ajuste les marges pour ne pas couper le texte
     plt.tight_layout()
-    
     return fig
 
 def interactive_prediction(model, feature_names):
     tree = model.tree_
     node = st.session_state.node_index
-    
-    # 3. Si on est sur une feuille (node terminal)
+
     if tree.children_left[node] == -1:
         st.success("### Complete Prediction")
         prob = tree.value[node][0][0]
@@ -174,22 +119,17 @@ def interactive_prediction(model, feature_names):
         st.write(f"**Classification:** {risk_grid(prob)}")
         return
 
-    # 4. Sinon, on pose la question
     feature_id = tree.feature[node]
     threshold = tree.threshold[node]
     feat_name = feature_names[feature_id]
-    
-    # Présentation plus propre
     st.subheader(f"Step: Evaluating {feat_name}")
     st.write(f"The model is checking if **{feat_name}** is less than or equal to **{threshold:.2f}**.")
-    
-    # Utilisation de colonnes pour que l'input et le bouton soient côte à côte
     col1, col2 = st.columns([2, 1])
     with col1:
         val = st.number_input(f"Enter value for {feat_name}:", key=f"input_{node}")
     
     with col2:
-        st.write("") # Espace pour aligner avec le champ input
+        st.write("")
         st.write("")
         if st.button("Validate Step ➡", type="primary"):
             if val <= threshold:
@@ -286,17 +226,14 @@ def LocGlob():
                     col1.metric("Without Routine", n0)
                     col2.metric("With Routine", n1)
             
-            # --- CORRECTION DE L'ORDRE ICI ---
-            # 1. On crée les variables indicatrices (Dummies)
+
             df_importe['Position'] = df_importe['Position'].str.strip().str.title()
             df_importe = pd.get_dummies(df_importe, dtype=float)
             df_importe = df_importe.reindex(columns=colonnes, fill_value=0.0)
-            
-            # 2. On standardise SEULEMENT APRÈS avoir créé toutes les colonnes
+
             df_importe_scaled = scaler.transform(df_importe[colonnes])
             df_importe_scaled = pd.DataFrame(df_importe_scaled, columns=colonnes)
-            
-            # 3. Calcul des contributions locales
+
             new_col=[]
             for i, col in enumerate(colonnes):
                 coefficient_specifique = modele.coef_[0][i]
@@ -304,7 +241,6 @@ def LocGlob():
                 new_col.append(col+'_contrib')
             df_mean = df_importe[new_col].mean().to_frame().T
             
-            # 4. Utilisation de la PIPELINE pour la prédiction
             probabilites_equipe = pipeline.predict_proba(df_importe[colonnes])[:, 1]
             niv = [risk(p) for p in probabilites_equipe]
             
@@ -365,14 +301,12 @@ def Treeloc():
         if "node_index" not in st.session_state: 
             st.session_state.node_index = 0
             
-        # Bouton d'action dans la sidebar ou en haut
         if st.button("Reset Interaction"):
             st.session_state.node_index = 0
             st.rerun()
         
         st.divider()
-        
-        # Le conteneur "Wizard"
+
         with st.container(border=True):
             tree_model = charger_modele_tree()
             colonnes = joblib.load('colonnes_entrainement.pkl')
@@ -425,8 +359,7 @@ def LogLoc():
             st.write(f"The number of hours per night current value is : {sleep}")
             nutrition = st.slider("Nutrition Level:", 0, 100, 50)
             st.write(f"Nutrition quality current value is : {nutrition}")
-            
-        # Création du profil brut du joueur
+
         df_joueur = pd.DataFrame(columns=colonnes)
         df_joueur.loc[0] = 0.0 
         
@@ -451,12 +384,9 @@ def LogLoc():
         if col_pos in df_joueur.columns:
             df_joueur.at[0, col_pos] = 1.0
             
-        # --- CORRECTION DE LA PIPELINE ICI ---
-        # 1. On calcule la probabilité directement avec la pipeline entière (sans standardiser manuellement)
         probabilite_blessure = pipeline.predict_proba(df_joueur)[0][1]
         niveau_risque = risk_grid(probabilite_blessure)
         
-        # 2. On standardise uniquement pour extraire les valeurs du graphique des contributions
         donnees_standardisees = scaler.transform(df_joueur)
         contribution = donnees_standardisees[0] * modele.coef_[0]
         
@@ -508,8 +438,7 @@ def rfiloc():
             sleep = st.slider("Sleep hours per night:", 0.00, 12.00, 8.00)
             st.write(f"The number of hours per night current value is : {sleep}")
             nutrition = st.slider("Nutrition Level:", 0, 100, 50)
-            
-        # Création du profil brut du joueur
+
         df_joueur = pd.DataFrame(columns=colonnes)
         df_joueur.loc[0] = 0.0 
         
@@ -551,8 +480,8 @@ def rfteam():
     if "rfteam" not in st.session_state:
         st.session_state.rfteam ="Base"
     if st.session_state.rfteam =="Base":
-        modele = joblib.load('modele_rf.pkl')
-        colonnes = joblib.load('colonnes_rf.pkl')
+        modele = joblib.load('models/modele_rf.pkl')
+        colonnes = joblib.load('models/colonnes_rf.pkl')
         
         st.subheader("Team Summary")
         st.info("This tool aims to give a complete summary and tools to take medical actionnable decision for the entire studied team.")
@@ -613,8 +542,6 @@ def rfteam():
             df_importe = pd.get_dummies(df_importe, dtype=float)
             df_importe = df_importe.reindex(columns=colonnes, fill_value=0.0)
 
-            # --- NOUVEAU CODE : PRÉDICTIONS ET SHAP D'ÉQUIPE ---
-            # 2. Prédictions pour toute l'équipe
             probabilites_equipe = modele.predict_proba(df_importe[colonnes])[:, 1]
             niv = [risk(p) for p in probabilites_equipe]
             
@@ -629,44 +556,29 @@ def rfteam():
             with col4: col4.metric(label="High risk (4/5)", value=niv.count(4))
             with col5: col5.metric(label="Very high risk (5/5)", value=niv.count(5))
 
-            # 3. Calcul global des SHAP Values pour l'équipe
             st.write("The top 2 protecting and risk-increasing factors have been summarized here by averaging the local SHAP contributions of all players.")
             
             explainer = shap.TreeExplainer(modele)
             shap_values = explainer(df_importe[colonnes])
-            
-            # On extrait les valeurs mathématiques brutes pour la classe 1 (blessure)
             shap_array = shap_values.values[:, :, 1] 
-            
-            # On fait la moyenne de l'impact de chaque variable pour toute l'équipe
             shap_moyens = np.mean(shap_array, axis=0)
-            
-            # On associe ces moyennes aux noms des colonnes et on trie
             serie_shap = pd.Series(shap_moyens, index=colonnes)
             serie_shap_trie = serie_shap.sort_values(ascending=True)
-            
-            # Les variables les plus négatives protègent, les plus positives aggravent
             top_2_faibles = serie_shap_trie.head(2)
             top_2_elevees = serie_shap_trie.tail(2)
-            
-            # 4. Affichage
             col_faible, col_eleve = st.columns(2)
             
             with col_faible:
                 st.success("Top 2 Protecting Factors (Negative SHAP)")
                 for variable, valeur in top_2_faibles.items():
-                    # Formatage pour être lisible
                     nom_propre = variable.replace("_", " ") 
                     st.metric(label=nom_propre, value=f"{valeur:.2%}")
                     
             with col_eleve:
                 st.error("Top 2 Risk Increasing Factors (Positive SHAP)")
-                # On inverse l'ordre pour afficher le plus dangereux en premier
                 for variable, valeur in top_2_elevees.sort_values(ascending=False).items():
                     nom_propre = variable.replace("_", " ")
                     st.metric(label=nom_propre, value=f"{valeur:.2%}")
-
-        # Bouton retour (à garder au même niveau d'indentation que le if fichier_csv is not None)
         if st.button("Back", key="back_rfteam"):
             st.session_state.disprf = "Menu RF Model"
             st.session_state.rfteam = "Base"
@@ -691,24 +603,17 @@ def Logistic():
         st.subheader("Global Interpretation")
         st.write("The overall interpretation can be based on the odds ratio. Specifically, the odds ratio quantifies the strength of the association between a characteristic and the target variable by indicating the proportional change in the odds of the outcome for each one-unit increase in that characteristic.")
         st.write("The odds ratio associated to each features are summarized in the following table. Some variables were not included because the estimates were not significant.")
-        # On calcule les OR en prenant l'exponentielle des coefficients
         odds_ratios = np.exp(modele.coef_[0])
-        
-        # On crée un DataFrame propre pour l'affichage
         df_or = pd.DataFrame({
             'Feature': colonnes,
             'Odds Ratio': odds_ratios
         })
-        
-        # On trie pour voir les facteurs les plus "risqués" en haut
         df_or = df_or.sort_values(by='Odds Ratio', ascending=False)
         df_or = df_or[df_or["Odds Ratio"]!=1]
         # On ajoute une colonne d'interprétation pour aider l'utilisateur
         df_or['Interpretation'] = df_or['Odds Ratio'].apply(
             lambda x: "📈 Increase Risk" if x > 1 else "🟢 Decrease Risk"
         )
-        
-        # Affichage avec une mise en forme conditionnelle
         st.dataframe(
             df_or.style.background_gradient(cmap='RdYlGn_r', subset=['Odds Ratio']), # Note le _r à la fin
             use_container_width=True,
@@ -734,7 +639,7 @@ def Logistic():
 
         if st.button("Back", key="back_menu_log"):
             st.session_state.dispositif="Welcome"
-            st.session_state.disp = "Menu Logistic Model" # On réinitialise le sous-menu proprement
+            st.session_state.disp = "Menu Logistic Model" 
             st.rerun()
     elif st.session_state.disp == "2":
         LocGlob()
@@ -765,7 +670,7 @@ def RandomF():
         st.write("THe following section displayed the ICE and PD plot of the variables that seemed relevant on the above PFI plot.")
         with st.expander("Click here to view detailed ICE and PD", expanded=True):
             chosen = st.selectbox("Choose a feature to analyze :", ['Stress_Level_Score', 'Sleep_Hours_Per_Night', 'Reaction_Time_ms', 'Balance_Test_Score', 'Knee_Strength_Score', 'Sprint_Speed_10m_s', 'Hamstring_Flexibility', 'Nutrition_Quality_Score', 'Agility_Score', 'Previous_Injury_Count', 'Height_cm', 'Weight_kg', 'BMI', 'Warmup_Routine_Adherence'])
-            chemin_image = f"ICE_{chosen}.png"
+            chemin_image = f"ICE\ICE_{chosen}.png"
             st.image(chemin_image, caption=f"ICE & PDP plot for {chosen}")
         st.divider()
         st.subheader("Individual Interpretation")
@@ -781,7 +686,7 @@ def RandomF():
             st.rerun()
         if st.button("Back", key="back_menu_rf"):
             st.session_state.dispositif="Welcome"
-            st.session_state.disprf = "Menu RF Model" # On réinitialise le sous-menu proprement
+            st.session_state.disprf = "Menu RF Model" 
             st.rerun()
     if st.session_state.disprf=="RF_ILoc":
         rfiloc()
@@ -794,7 +699,6 @@ def Methodology():
     st.title("Dataset Methodology & Description")
     st.divider()
 
-    # Section A.1.1
     st.subheader("A.1.1 Demographical Information")
     st.markdown("""
     Player information is summarized in 8 variables (1 nominal-qualitative, 3 quantitative discrete, 4 continuous quantitative):
@@ -806,9 +710,8 @@ def Methodology():
     - **Matches played past season**: Number of games participated in last season.
     """)
 
-    st.write("") # Espace blanc
+    st.write("") 
     
-    # Section A.1.2
     st.subheader("A.1.2 Physical strength and abilities")
     st.markdown("""
     Player strength tests and abilities are captured by 6 continuous variables:
@@ -822,7 +725,6 @@ def Methodology():
 
     st.write("")
 
-    # Section A.1.3
     st.subheader("A.1.3 Life Habits")
     st.markdown("""
     Life habits are captured by 4 variables:
@@ -881,7 +783,7 @@ def main():
             * **Warmup**: Routine status (1: Yes, 0: No).
             """)
             
-        with st.expander("🏃 Physical Tests"):
+        with st.expander(" Physical Tests"):
             st.markdown("""
             * **Knee Strength**: Score (0-100).
             * **Hamstring Flex**: Score (0-100).
