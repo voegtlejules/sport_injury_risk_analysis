@@ -500,6 +500,9 @@ def rfteam():
         
         st.markdown("Import the data")
         fichier_csv = st.file_uploader("Please drop the file completed", type="csv")
+        st.markdown("Or use an example dataset")
+        if st.button("Example"):
+            fichier_csv = pd.read_csv('./ICE/data_exemple.csv')
         
         if fichier_csv is not None:
             df_importe = pd.read_csv(fichier_csv, sep=';')
