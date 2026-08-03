@@ -188,6 +188,8 @@ def LocGlob():
         
         st.markdown("Import the data")
         fichier_csv = st.file_uploader("Please drop the file completed", type="csv")
+        if st.button("Example"):
+            fichier_csv = './ICE/data_exemple.csv'
         
         if fichier_csv is not None:
             df_importe = pd.read_csv(fichier_csv, sep=';')
