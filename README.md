@@ -1,4 +1,4 @@
-# Explainable Machine Learning for Sports Injury Risk Analysis ⚽🏥
+# Explainable Machine Learning for Sports Injury Risk Analysis
 
 **A Proof-of-Concept Study for Explainable AI (XAI) in Sports Medicine**
 
