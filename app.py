@@ -330,38 +330,35 @@ def LogLoc():
         pipeline, colonnes = charger_modele_logistic()
         modele = pipeline.named_steps['lr']
         scaler = pipeline.named_steps['scaler']
-        
         with st.expander("Player Information", expanded=True):
-            heigth = st.slider("Height in cm:", 150, 210, 177)
-            weight = st.slider("Weight in kg:", 40, 110, 73)
-            training = st.slider("Total number hours of training per week:", 0.0, 20.0, 10.0)
+            heigth = st.slider("Height in cm:", 150, 210, 193)
+            weight = st.slider("Weight in kg:", 40, 110, 85)
+            training = st.slider("Total number hours of training per week:", 0.0, 20.0, 12.0)
             position = st.radio("Position played", ["Goalkeeper", "Defender", "Midfielder", "Forward"])
-            matches = st.slider("Number of games played past season", 0, 40, 22)
+            matches = st.slider("Number of games played past season", 0, 40, 10)
             warmup = st.radio("Warmup routine", ["Yes", "No"])
-            injury = st.slider("Previous Injury count:", 0, 10, 0)
+            injury = st.slider("Previous Injury count:", 0, 10, 2)
             
         with st.expander("Physical Test Score", expanded=True):
-            reaction = st.slider("Reaction in ms:", 175.0, 320.0, 250.00)
+            reaction = st.slider("Reaction in ms:", 175.0, 320.0, 226.00)
             st.write(f"Reaction time current value is : {reaction}")
-            balance = st.slider("Balance test score:", 0, 100, 50)
+            balance = st.slider("Balance test score:", 0, 100, 69)
             st.write(f"Balance test score current value is : {balance}")
-            sprint = st.slider("10m sprint:", 4.50, 7.00, 5.9)
+            sprint = st.slider("10m sprint:", 4.50, 7.00, 5.50)
             st.write(f"The time for a 10m sprint current value is : {sprint}")
-            hamstring = st.slider("Hamstring Flexibility score:", 0, 100, 50)
+            hamstring = st.slider("Hamstring Flexibility score:", 0, 100, 67)
             st.write(f"Hamstring flexibility score current value is : {hamstring}")
-            knee = st.slider("Knee strength score:", 0, 100, 50)
+            knee = st.slider("Knee strength score:", 0, 100, 86)
             st.write(f"Knee strength score current value is : {knee}")
-            agility = st.slider("Agility score:", 0, 100, 78)
+            agility = st.slider("Agility score:", 0, 100, 67)
             st.write(f"Agility score current value is : {agility}")
             
         with st.expander("Life Information", expanded=True):
-            stress = st.slider("Stress Level:", 0, 100, 50)
+            stress = st.slider("Stress Level:", 0, 100, 70)
             st.write(f"Stress level current value is : {stress}")
-            sleep = st.slider("Sleep hours per night:", 0.00, 12.00, 8.00)
+            sleep = st.slider("Sleep hours per night:", 0.00, 12.00, 8.20)
             st.write(f"The number of hours per night current value is : {sleep}")
-            nutrition = st.slider("Nutrition Level:", 0, 100, 50)
-            st.write(f"Nutrition quality current value is : {nutrition}")
-
+            nutrition = st.slider("Nutrition Level:", 0, 100, 80)
         df_joueur = pd.DataFrame(columns=colonnes)
         df_joueur.loc[0] = 0.0 
         
