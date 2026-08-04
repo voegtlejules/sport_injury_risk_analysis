@@ -314,7 +314,7 @@ def Treeloc():
             colonnes = joblib.load('models/colonnes_entrainement.pkl')
             interactive_prediction(tree_model, colonnes)
 
-        if st.button("⬅️ Back to Menu"):
+        if st.button("Back"):
             st.session_state.disp ="Menu Logistic Model"
             st.session_state.disptreeloc = "Tree Local Interpretation"
             st.rerun()
