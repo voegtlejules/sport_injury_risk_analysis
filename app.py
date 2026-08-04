@@ -396,6 +396,13 @@ def LogLoc():
         figure = tracer_graphique_contributions(colonnes, contribution)
         st.pyplot(figure)
 
+        st.info(
+        "**How to interpret this plot:** "
+        "The chart displayed above shows the contribution of each feature to the final linear predictor (log-odds). "
+        "The higher the contribution, the greater the impact of the associated feature. "
+        "Positive contributions increase the predicted risk of injury, whereas negative contributions decrease it."
+        )
+
         if st.button("Back", key="back_logloc"):
             st.session_state.disp ="Menu Logistic Model"
             st.session_state.displogloc = "Logistic Local Interpretation" 
@@ -674,11 +681,22 @@ def RandomF():
         st.write("In this section, the result are based on a 80/20 split as we need a testing set to calculate these values.")
         st.write("The following waterfall graphic displays the result of the Permutation Feature Importance. Only features that actively contribute to the model's performance are shown.")
         afficher_pfi()
+        st.info(
+        "**How to interpret this chart:** "
+        "Permutation Feature Importance measures the contribution of each feature to the model's performance. "
+        "The greater the decrease in model accuracy when a feature's values are permuted, the higher its overall importance."
+        )
         st.write("THe following section displayed the ICE and PD plot of the variables that seemed relevant on the above PFI plot.")
         with st.expander("Click here to view detailed ICE and PD", expanded=True):
             chosen = st.selectbox("Choose a feature to analyze :", ['Stress_Level_Score', 'Sleep_Hours_Per_Night', 'Reaction_Time_ms', 'Balance_Test_Score', 'Knee_Strength_Score', 'Sprint_Speed_10m_s', 'Hamstring_Flexibility', 'Nutrition_Quality_Score', 'Agility_Score', 'Previous_Injury_Count', 'Height_cm', 'Weight_kg', 'BMI', 'Warmup_Routine_Adherence'])
             chemin_image = f"ICE/ICE_{chosen}.png"
             st.image(chemin_image, caption=f"ICE & PDP plot for {chosen}")
+        st.info(
+        "**How to interpret this chart:** "
+        "The Partial Dependence Plot (PDP, dashed line) shows the average relationship between a feature and the predicted risk of injury across the entire population. "
+        "Meanwhile, the individual lines (ICE curves, light blue) display how the prediction changes for each specific player, helping to identify heterogeneous effects or non-linear patterns if all the ICE curves don't follow the same dynamic."
+        "These curves can help detect threshold, helping to set data-driven goals for athletes."
+        )
         st.divider()
         st.subheader("Individual Interpretation")
         st.write("Regarding individual interpretation, the following tool is based on the SHAP value and aims at providing a risk prediction of injury and provide an explanation of the result.")
