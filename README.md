@@ -31,7 +31,7 @@ First, clone the repository and navigate to the project directory:
 git clone [https://github.com/voegtlejules/sport_injury_risk_analysis.git](https://github.com/voegtlejules/sport_injury_risk_analysis.git)
 cd sport_injury_risk_analysis
 
-Option 1: Using Docker (Recommended 🐳)
+Option 1: Using Docker (Recommended)
 
 If you have Docker installed, you don't need to manually configure your Python environment.
 
