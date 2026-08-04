@@ -27,6 +27,31 @@ This Proof of Concept (PoC) aims to bridge the gap between advanced ML and pract
 
 ## How to Run Locally
 
+First, clone the repository and navigate to the project directory:
+git clone [https://github.com/voegtlejules/sport_injury_risk_analysis.git](https://github.com/voegtlejules/sport_injury_risk_analysis.git)
+cd sport_injury_risk_analysis
+
+Option 1: Using Docker (Recommended 🐳)
+
+If you have Docker installed, you don't need to manually configure your Python environment.
+
+- Build the Docker image:
+   docker build -t sport-injury-app .
+- Run the container:
+   docker run -p 8501:8501 sport-injury-app
+- Open your browser and navigate to http://localhost:8501.
+
+Option 2: Standard Python Environment
+
+If you prefer running the app directly via Python:
+
+- Install the required dependencies:
+   pip install -r requirements.txt
+- Run the Streamlit application:
+   streamlit run app.py
+
+## How to Run Locally
+
 1. **Clone the repository**
    git clone [https://github.com/voegtlejules/sport_injury_risk_analysis.git](https://github.com/voegtlejules/sport_injury_risk_analysis.git)
    cd sport_injury_risk_analysis
