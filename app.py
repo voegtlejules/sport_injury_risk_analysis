@@ -621,6 +621,11 @@ def Logistic():
             use_container_width=True,
             hide_index=True
         )
+        st.info(
+        "**How to interpret these values:** "
+        "Odds ratios are used to interpret the change in the odds of injury when a feature increases by one unit. "
+        "For instance, the odds of injury are multiplied by 4.2 when the stress score increases by one."
+        )
         st.divider()
         st.subheader("Local Interpretation")
         st.write("Regarding local interpretation, various methods are proposed below.")
