@@ -478,6 +478,12 @@ def rfiloc():
         st.write(f"Injury Probability : {probabilite_blessure:.2%}")
         fig_shap = shapval(modele, df_joueur)
         st.pyplot(fig_shap)
+        st.info(
+            "**How to interpret this SHAP plot:** "
+            "This waterfall plot breaks down how individual feature values push a player's predicted injury risk away from the baseline population average. "
+            "Red bars represent features that increase the risk of injury, while blue bars represent protecting factors that decrease it. "
+            "The length of each bar indicates the magnitude of the feature's impact on this specific player."
+        )
         if st.button("Back", key="back_rfiloc"):
             st.session_state.disprf ="Menu RF Model"
             st.rerun()
